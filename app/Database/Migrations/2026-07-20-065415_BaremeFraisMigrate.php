@@ -32,6 +32,13 @@ class CreateBaremesFrais extends Migration
                 'type'       => 'DECIMAL',
                 'constraint' => '14,2',
             ],
+            'operateur_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+                'default'    => null,
+            ],
             'actif' => [
                 'type'       => 'TINYINT',
                 'constraint' => 1,
