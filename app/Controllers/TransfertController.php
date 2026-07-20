@@ -77,7 +77,6 @@ class TransfertController extends BaseController
 
         $clientModel   = new ClientsModel();
         $clientSource  = $clientModel->find($session->get('client_id'));
-        $prefixModel   = new PrefixOperateurModel();
 
         $clientsDest = [];
         $operateurIdsDest = [];
