@@ -4,19 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PrefixOperateurModel extends Model
+class TypeOperationModel extends Model
 {
-    protected $table            = 'prefixes_operateur';
+    protected $table            = 'types_operation';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields = [
-        'operateur_id',
-        'prefixe',
+        'code',
+        'libelle',
+        'avec_frais',
         'actif',
-        'date_creation',
     ];
 
     protected $useTimestamps = false;
@@ -25,6 +25,7 @@ class PrefixOperateurModel extends Model
     protected $updatedField  = 'updated_at';
 
     protected $validationRules = [
-        'prefixe' => 'required|exact_length[3]|is_unique[prefixes_operateur.prefixe,id,{id}]',
+        'code'    => 'required|max_length[20]|is_unique[types_operation.code,id,{id}]',
+        'libelle' => 'required|max_length[50]',
     ];
 }

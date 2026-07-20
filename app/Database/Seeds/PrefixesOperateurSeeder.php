@@ -8,7 +8,6 @@ class PrefixesOperateurSeeder extends Seeder
 {
     public function run()
     {
-        // Récupère les id des opérateurs à partir de leur code (voir OperateursSeeder)
         $operateurs = $this->db->table('operateurs')
             ->select('id, code')
             ->get()
@@ -17,16 +16,14 @@ class PrefixesOperateurSeeder extends Seeder
         $idsParCode = array_column($operateurs, 'id', 'code');
 
         $prefixes = [
-            ['prefixe' => '034', 'code' => 'YAS'],
-            ['prefixe' => '038', 'code' => 'YAS'],
-            ['prefixe' => '033', 'code' => 'ATL'],
-            ['prefixe' => '032', 'code' => 'ORG'],
+            ['prefixe' => '033', 'code' => 'OPM'],
+            ['prefixe' => '037', 'code' => 'OPM'],
         ];
 
         $data = [];
         foreach ($prefixes as $p) {
             if (!isset($idsParCode[$p['code']])) {
-                continue; // opérateur non trouvé, on ignore plutôt que planter le seed
+                continue;
             }
 
             $data[] = [

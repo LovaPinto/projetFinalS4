@@ -8,7 +8,6 @@ class Clients extends Seeder
 {
     public function run()
     {
-        // Récupère les id des opérateurs à partir de leur code (voir OperateursSeeder)
         $operateurs = $this->db->table('operateurs')
             ->select('id, code')
             ->get()
@@ -19,18 +18,14 @@ class Clients extends Seeder
         $now = date('Y-m-d H:i:s');
 
         $clients = [
-            ['numero' => '0341234567', 'code' => 'YAS', 'solde' => 50000],
-            ['numero' => '0389876543', 'code' => 'YAS', 'solde' => 12500],
-            ['numero' => '0331112233', 'code' => 'ATL', 'solde' => 75300],
-            ['numero' => '0334455667', 'code' => 'ATL', 'solde' => 0],
-            ['numero' => '0327788990', 'code' => 'ORG', 'solde' => 250000],
-            ['numero' => '0321239876', 'code' => 'ORG', 'solde' => 3400],
+            ['numero' => '0331234567', 'code' => 'OPM', 'solde' => 125000],
+            ['numero' => '0379876543', 'code' => 'OPM', 'solde' => 70000],
         ];
 
         $data = [];
         foreach ($clients as $c) {
             if (!isset($idsParCode[$c['code']])) {
-                continue; // opérateur non trouvé, on ignore plutôt que planter le seed
+                continue;
             }
 
             $data[] = [

@@ -23,6 +23,11 @@ class CreateTypesOperation extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
             ],
+            'avec_frais' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 0,
+            ],
             'actif' => [
                 'type'       => 'TINYINT',
                 'constraint' => 1,

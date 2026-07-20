@@ -17,11 +17,19 @@ class CreateOperateurs extends Migration
             ],
             'nom' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 50,
+                'constraint' => 100,
             ],
             'code' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 10,
+            ],
+            'email' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 150,
+            ],
+            'mot_de_passe' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
             ],
             'actif' => [
                 'type'       => 'TINYINT',
@@ -36,6 +44,7 @@ class CreateOperateurs extends Migration
         $this->forge->addPrimaryKey('id');
         $this->forge->addUniqueKey('nom');
         $this->forge->addUniqueKey('code');
+        $this->forge->addUniqueKey('email');
         $this->forge->createTable('operateurs');
     }
 

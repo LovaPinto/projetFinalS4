@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientsModel;
 use App\Models\PrefixOperateurModel;
+use App\Models\TransactionModel;
 
 class ClientsController extends BaseController
 {
@@ -81,6 +82,34 @@ class ClientsController extends BaseController
     {
         session()->destroy();
         return redirect()->to('/');
+    }
+
+    /**
+     * Tableau de bord du client connecté : solde à jour + dernières opérations.
+     */
+    public function dashboard()
+    {
+        // ---- Protection : il faut être connecté ----
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/')->with('error', 'Veuillez vous connecter pour accéder à votre espace.');
+        }
+
+        $clientModel = new ClientsModel();
+        $client      = $clientModel->find(session()->get('client_id'));
+
+        // Si le compte a été supprimé/désactivé entre-temps -> on force la reconnexion
+        if (!$client) {
+            session()->destroy();
+            return redirect()->to('/')->with('error', 'Votre session a expiré, merci de vous reconnecter.');
+        }
+
+        $transactionModel = new TransactionModel();
+        $historique        = $transactionModel->getHistoriqueClient($client['id'], 10);
+
+        return view('Template/client/dashboard', [
+            'client'     => $client,
+            'historique' => $historique,
+        ]);
     }
 
     /**

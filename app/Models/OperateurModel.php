@@ -4,21 +4,21 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ClientsModel extends Model
+class OperateurModel extends Model
 {
-    protected $table            = 'clients';
+    protected $table            = 'operateurs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields = [
-        'numero_telephone',
-        'operateur_id',
-        'solde',
-        'statut',
+        'nom',
+        'code',
+        'email',
+        'mot_de_passe',
+        'actif',
         'date_creation',
-        'date_derniere_connexion',
     ];
 
     protected $useTimestamps = false;
@@ -27,9 +27,8 @@ class ClientsModel extends Model
     protected $updatedField  = 'updated_at';
 
     protected $validationRules = [
-        'numero_telephone' => 'required|exact_length[10]|is_unique[clients.numero_telephone,id,{id}]',
-        'operateur_id'     => 'required|is_not_unique[operateurs.id]',
-        'solde'            => 'required|decimal|greater_than_equal_to[0]',
-        'statut'           => 'required|in_list[ACTIF,BLOQUE,SUSPENDU]',
+        'nom'    => 'required|max_length[100]',
+        'code'   => 'required|max_length[10]',
+        'email'  => 'required|valid_email|is_unique[operateurs.email,id,{id}]',
     ];
 }
