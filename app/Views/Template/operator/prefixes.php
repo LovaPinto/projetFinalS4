@@ -2,7 +2,7 @@
 <html lang="fr">
 
 <head>
-    <title>Tranches de frais - MobiCash</title>
+    <title>Gestion des préfixes - MobiCash</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,14 +10,14 @@
     <link href="/assets/css/style.css" rel="stylesheet">
 </head>
 
-<body data-role="operator" data-page="fees">
+<body data-role="operator" data-page="prefixes">
     <div id="sidebar"></div>
     <div class="main">
         <div id="topbar"></div>
         <main class="content">
             <div class="mb-4">
-                <h1 class="title">Tranches de frais</h1>
-                <p class="subtitle">Configurez les frais par opération et montant.</p>
+                <h1 class="title">Gestion des préfixes</h1>
+                <p class="subtitle">Ajoutez les préfixes téléphoniques autorisés.</p>
             </div>
 
             <?php if (session()->getFlashdata('success')): ?>
@@ -34,75 +34,64 @@
                 </div>
             <?php endif; ?>
 
-            <div class="cardx pad mb-4">
-                <h2 class="h5 fw-bold mb-3">Ajouter une tranche</h2>
-                <form method="POST" action="/operator/fees/add" class="row g-3">
-                    <?= csrf_field() ?>
-                    <div class="col-md-3">
-                        <label class="form-label">Opération</label>
-                        <select name="type_operation_id" class="form-select" required>
-                            <option value="">-- Choisir --</option>
-                            <?php foreach ($types as $t): ?>
-                                <option value="<?= $t['id'] ?>"><?= esc($t['libelle']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Minimum</label>
-                        <input name="montant_min" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Maximum</label>
-                        <input name="montant_max" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Frais</label>
-                        <input name="frais" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-primary w-100">Ajouter</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="cardx pad">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Opération</th>
-                                <th>Minimum</th>
-                                <th>Maximum</th>
-                                <th>Frais</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($fees)): ?>
-                                <tr><td colspan="6" class="text-center text-muted py-4">Aucune tranche de frais configurée.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($fees as $f): ?>
-                                    <tr>
-                                        <td><span class="badge badge-primary"><?= esc($f['type_libelle']) ?></span></td>
-                                        <td><?= number_format($f['montant_min'], 0, ',', ' ') ?> Ar</td>
-                                        <td><?= number_format($f['montant_max'], 0, ',', ' ') ?> Ar</td>
-                                        <td><b><?= number_format($f['frais'], 0, ',', ' ') ?> Ar</b></td>
-                                        <td>
-                                            <?php if ($f['actif']): ?>
-                                                <span class="badge badge-ok rounded-pill">ACTIF</span>
-                                            <?php else: ?>
-                                                <span class="badge badge-danger rounded-pill">INACTIF</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-end">
-                                            <a href="/operator/fees/delete/<?= $f['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer cette tranche ?')"><i class="bi bi-trash"></i></a>
-                                        </td>
-                                    </tr>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="cardx pad">
+                        <h2 class="h5 fw-bold">Ajouter un préfixe</h2>
+                        <form method="POST" action="/operator/prefixes/add">
+                            <?= csrf_field() ?>
+                            <label class="form-label mt-3">Préfixe</label>
+                            <input name="prefixe" class="form-control" placeholder="Ex. 034" maxlength="3" pattern="\d{3}" required>
+                            <label class="form-label mt-3">Opérateur</label>
+                            <select name="operateur_id" class="form-select" required>
+                                <option value="">-- Choisir --</option>
+                                <?php foreach ($operateurs as $op): ?>
+                                    <option value="<?= $op['id'] ?>"><?= esc($op['nom']) ?></option>
                                 <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                            </select>
+                            <button class="btn btn-primary w-100 mt-3">Ajouter</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="cardx pad">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Préfixe</th>
+                                        <th>Opérateur</th>
+                                        <th>Statut</th>
+                                        <th>Ajouté le</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($prefixes)): ?>
+                                        <tr><td colspan="5" class="text-center text-muted py-4">Aucun préfixe enregistré.</td></tr>
+                                    <?php else: ?>
+                                        <?php foreach ($prefixes as $p): ?>
+                                            <tr>
+                                                <td><span class="badge badge-primary rounded-pill fs-6"><?= esc($p['prefixe']) ?></span></td>
+                                                <td><?= esc($p['operateur_nom']) ?></td>
+                                                <td>
+                                                    <?php if ($p['actif']): ?>
+                                                        <span class="badge badge-ok rounded-pill">ACTIF</span>
+                                                    <?php else: ?>
+                                                        <span class="badge badge-danger rounded-pill">INACTIF</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?= date('d/m/Y', strtotime($p['date_creation'])) ?></td>
+                                                <td class="text-end">
+                                                    <a href="/operator/prefixes/delete/<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce préfixe ?')"><i class="bi bi-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

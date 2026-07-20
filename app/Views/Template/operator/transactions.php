@@ -2,7 +2,7 @@
 <html lang="fr">
 
 <head>
-    <title>Tranches de frais - MobiCash</title>
+    <title>Toutes les transactions - MobiCash</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,94 +10,55 @@
     <link href="/assets/css/style.css" rel="stylesheet">
 </head>
 
-<body data-role="operator" data-page="fees">
+<body data-role="operator" data-page="transactions">
     <div id="sidebar"></div>
     <div class="main">
         <div id="topbar"></div>
         <main class="content">
             <div class="mb-4">
-                <h1 class="title">Tranches de frais</h1>
-                <p class="subtitle">Configurez les frais par opération et montant.</p>
-            </div>
-
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success rounded-4">
-                    <i class="bi bi-check-circle me-1"></i>
-                    <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger rounded-4">
-                    <i class="bi bi-exclamation-circle me-1"></i>
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="cardx pad mb-4">
-                <h2 class="h5 fw-bold mb-3">Ajouter une tranche</h2>
-                <form method="POST" action="/operator/fees/add" class="row g-3">
-                    <?= csrf_field() ?>
-                    <div class="col-md-3">
-                        <label class="form-label">Opération</label>
-                        <select name="type_operation_id" class="form-select" required>
-                            <option value="">-- Choisir --</option>
-                            <?php foreach ($types as $t): ?>
-                                <option value="<?= $t['id'] ?>"><?= esc($t['libelle']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Minimum</label>
-                        <input name="montant_min" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Maximum</label>
-                        <input name="montant_max" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Frais</label>
-                        <input name="frais" type="number" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-primary w-100">Ajouter</button>
-                    </div>
-                </form>
+                <h1 class="title">Toutes les transactions</h1>
+                <p class="subtitle">Consultez toutes les opérations effectuées.</p>
             </div>
 
             <div class="cardx pad">
+                <div class="d-flex justify-content-between mb-3">
+                    <h2 class="h5 fw-bold">Historique complet</h2>
+                    <span class="badge badge-primary rounded-pill"><?= count($transactions) ?></span>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Opération</th>
-                                <th>Minimum</th>
-                                <th>Maximum</th>
+                                <th>Référence</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Montant</th>
                                 <th>Frais</th>
                                 <th>Statut</th>
-                                <th>Actions</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($fees)): ?>
-                                <tr><td colspan="6" class="text-center text-muted py-4">Aucune tranche de frais configurée.</td></tr>
+                            <?php if (empty($transactions)): ?>
+                                <tr><td colspan="8" class="text-center text-muted py-4">Aucune transaction enregistrée.</td></tr>
                             <?php else: ?>
-                                <?php foreach ($fees as $f): ?>
+                                <?php foreach ($transactions as $tx): ?>
                                     <tr>
-                                        <td><span class="badge badge-primary"><?= esc($f['type_libelle']) ?></span></td>
-                                        <td><?= number_format($f['montant_min'], 0, ',', ' ') ?> Ar</td>
-                                        <td><?= number_format($f['montant_max'], 0, ',', ' ') ?> Ar</td>
-                                        <td><b><?= number_format($f['frais'], 0, ',', ' ') ?> Ar</b></td>
+                                        <td><code><?= esc($tx['reference']) ?></code></td>
+                                        <td><?= esc($tx['type_libelle']) ?></td>
+                                        <td><?= esc($tx['client_source_tel'] ?? '-') ?></td>
+                                        <td><?= esc($tx['client_dest_tel'] ?? '-') ?></td>
+                                        <td><b><?= number_format($tx['montant'], 0, ',', ' ') ?> Ar</b></td>
+                                        <td><?= number_format($tx['frais'], 0, ',', ' ') ?> Ar</td>
                                         <td>
-                                            <?php if ($f['actif']): ?>
-                                                <span class="badge badge-ok rounded-pill">ACTIF</span>
+                                            <?php if ($tx['statut'] === 'REUSSI'): ?>
+                                                <span class="badge badge-ok rounded-pill">Réussi</span>
                                             <?php else: ?>
-                                                <span class="badge badge-danger rounded-pill">INACTIF</span>
+                                                <span class="badge badge-danger rounded-pill"><?= esc($tx['statut']) ?></span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-end">
-                                            <a href="/operator/fees/delete/<?= $f['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer cette tranche ?')"><i class="bi bi-trash"></i></a>
-                                        </td>
+                                        <td><?= date('d/m/Y H:i', strtotime($tx['date_creation'])) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
