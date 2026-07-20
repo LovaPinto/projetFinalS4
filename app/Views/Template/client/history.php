@@ -2,7 +2,7 @@
 <html lang="fr">
 
 <head>
-    <title>Mon tableau de bord - MobiCash</title>
+    <title>Mon historique - MobiCash</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,63 +10,20 @@
     <link href="/assets/css/style.css" rel="stylesheet">
 </head>
 
-<body data-role="client" data-page="dashboard">
+<body data-role="client" data-page="history">
     <div id="sidebar"></div>
     <div class="main">
         <div id="topbar"></div>
         <main class="content">
             <div class="mb-4">
-                <h1 class="title">Mon tableau de bord</h1>
-                <p class="subtitle">Bienvenue, <?= esc($client['numero_telephone']) ?> — <?= esc($operateur['nom'] ?? 'N/A') ?></p>
-            </div>
-
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success rounded-4">
-                    <i class="bi bi-check-circle me-1"></i>
-                    <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger rounded-4">
-                    <i class="bi bi-exclamation-circle me-1"></i>
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="balance mb-4">
-                <span>Solde disponible</span>
-                <strong><?= number_format($client['solde'], 0, ',', ' ') ?> Ar</strong>
-                <span><i class="bi bi-telephone me-2"></i><?= esc($client['numero_telephone']) ?></span>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <a class="action" href="#">
-                        <div class="ico green mb-3"><i class="bi bi-wallet2"></i></div>
-                        <h3 class="h6 fw-bold">Faire un dépôt</h3>
-                        <p class="text-secondary mb-0">Ajouter de l'argent au compte.</p>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a class="action" href="#">
-                        <div class="ico orange mb-3"><i class="bi bi-cash-stack"></i></div>
-                        <h3 class="h6 fw-bold">Faire un retrait</h3>
-                        <p class="text-secondary mb-0">Retirer avec calcul des frais.</p>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a class="action" href="#">
-                        <div class="ico purple mb-3"><i class="bi bi-send"></i></div>
-                        <h3 class="h6 fw-bold">Faire un transfert</h3>
-                        <p class="text-secondary mb-0">Envoyer vers un autre numéro.</p>
-                    </a>
-                </div>
+                <h1 class="title">Mon historique</h1>
+                <p class="subtitle">Consultez toutes vos opérations.</p>
             </div>
 
             <div class="cardx pad">
                 <div class="d-flex justify-content-between mb-3">
-                    <h2 class="h5 fw-bold">Dernières opérations</h2>
+                    <h2 class="h5 fw-bold">Toutes les opérations</h2>
+                    <span class="badge badge-primary rounded-pill"><?= count($historique) ?></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
@@ -76,6 +33,7 @@
                                 <th>Type</th>
                                 <th>Montant</th>
                                 <th>Frais</th>
+                                <th>Solde après</th>
                                 <th>Statut</th>
                                 <th>Date</th>
                             </tr>
@@ -83,7 +41,8 @@
                         <tbody>
                             <?php if (empty($historique)): ?>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                         Aucune opération pour le moment.
                                     </td>
                                 </tr>
@@ -94,6 +53,7 @@
                                         <td><?= esc($tx['type_libelle']) ?></td>
                                         <td><b><?= number_format($tx['montant'], 0, ',', ' ') ?> Ar</b></td>
                                         <td><?= number_format($tx['frais'], 0, ',', ' ') ?> Ar</td>
+                                        <td><?= number_format($tx['solde_apres'], 0, ',', ' ') ?> Ar</td>
                                         <td>
                                             <?php if ($tx['statut'] === 'REUSSI'): ?>
                                                 <span class="badge badge-ok rounded-pill">Réussi</span>
@@ -113,7 +73,6 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar dynamique côté client
         const menu = [
             ["/dashboard", "dashboard", "bi-house", "Accueil"],
             ["/depot", "deposit", "bi-wallet2", "Dépôt"],
