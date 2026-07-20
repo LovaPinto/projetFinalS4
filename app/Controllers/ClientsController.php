@@ -15,12 +15,6 @@ class ClientsController extends BaseController
         return view('Template/operator/login.php');
     }
 
-    /**
-     * Login automatique par numéro de téléphone.
-     * - Si le numéro existe déjà -> connexion, mise à jour de la dernière connexion.
-     * - Si le numéro n'existe pas -> création automatique du compte, puis connexion.
-     * Dans les deux cas -> création de la session et redirection vers le dashboard.
-     */
     public function login()
     {
         $numero = trim((string) $this->request->getPost('numero_telephone'));
@@ -71,6 +65,7 @@ class ClientsController extends BaseController
             'client_id'        => $client['id'],
             'numero_telephone' => $client['numero_telephone'],
             'operateur_id'     => $client['operateur_id'],
+             'solde'  =>          $client['solde'],
             'isLoggedIn'       => true,
         ]);
 
