@@ -306,7 +306,15 @@ class OperatorController extends BaseController
 
         $db = \Config\Database::connect();
 
-        $gainsParType = $db->query("SELECT * FROM vue_gains_par_type")->getResultArray();
+        $gainsParType = $db->query(
+            "SELECT t.code, t.libelle, 
+                    COUNT(tr.id) AS nb_operations, 
+                    COALESCE(SUM(tr.frais), 0) AS total_frais_encaisses
+             FROM types_operation t
+             LEFT JOIN transactions tr ON tr.type_operation_id = t.id AND tr.statut = 'REUSSI'
+             GROUP BY t.code, t.libelle
+             ORDER BY total_frais_encaisses DESC"
+        )->getResultArray();
 
         $totalFrais = array_sum(array_column($gainsParType, 'total_frais_encaisses'));
         $totalOps   = array_sum(array_column($gainsParType, 'nb_operations'));
@@ -316,9 +324,9 @@ class OperatorController extends BaseController
             $gainsParTypeDetail[] = [
                 'code'          => $row['code'],
                 'libelle'       => $row['libelle'],
-                'nb_operations' => $row['nb_operations'],
-                'total_frais'   => $row['total_frais_encaisses'],
-                'pourcentage'   => $totalFrais > 0 ? round(($row['total_frais_encaisses'] / $totalFrais) * 100, 1) : 0,
+                'nb_operations' => (int) $row['nb_operations'],
+                'total_frais'   => (float) $row['total_frais_encaisses'],
+                'pourcentage'   => $totalFrais > 0 ? round(((float) $row['total_frais_encaisses'] / $totalFrais) * 100, 1) : 0,
             ];
         }
 
