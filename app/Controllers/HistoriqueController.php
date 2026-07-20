@@ -2,45 +2,32 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\ClientsModel;
-use App\Models\OperateurModel;
 use App\Models\TransactionModel;
+use App\Models\OperateurModel;
 
-class DashbordController extends BaseController
+class HistoriqueController extends BaseController
 {
     public function index()
     {
         $session = session();
-
         if (!$session->get('isLoggedIn')) {
             return redirect()->to('/')->with('error', 'Veuillez vous connecter.');
         }
 
-        $clientId = $session->get('client_id');
-
         $clientModel = new ClientsModel();
-        $client      = $clientModel->find($clientId);
-
-        if (!$client) {
-            $session->destroy();
-            return redirect()->to('/')->with('error', 'Compte introuvable, veuillez vous reconnecter.');
-        }
+        $client      = $clientModel->find($session->get('client_id'));
 
         $operateurModel = new OperateurModel();
         $operateur      = $operateurModel->find($client['operateur_id']);
 
         $transactionModel = new TransactionModel();
-        $historique        = $transactionModel->getHistoriqueClient($clientId, 20);
+        $historique       = $transactionModel->getHistoriqueClient($client['id'], 50);
 
-        $session->set('solde', $client['solde']);
-
-        $data = [
+        return view('Template/client/history', [
             'client'     => $client,
             'operateur'  => $operateur,
             'historique' => $historique,
-        ];
-
-        return view('Template/client/dashboard', $data);
+        ]);
     }
 }
