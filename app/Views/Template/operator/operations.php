@@ -2,7 +2,7 @@
 <html lang="fr">
 
 <head>
-    <title>Toutes les transactions</title>
+    <title>Types d’opérations</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,30 +10,28 @@
     <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 
-<body data-role="operator" data-page="transactions" data-action="">
+<body data-role="operator" data-page="operations" data-action="">
     <div id="sidebar"></div>
     <div class="main">
         <div id="topbar"></div>
         <main class="content">
             <div class="mb-4">
-                <h1 class="title">Toutes les transactions</h1>
-                <p class="subtitle">Consultez toutes les opérations effectuées.</p>
+                <h1 class="title">Types d’opérations</h1>
+                <p class="subtitle">Gérez les opérations disponibles.</p>
             </div>
             <div class="cardx pad">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Référence</th>
-                                <th>Client</th>
-                                <th>Type</th>
-                                <th>Montant</th>
+                                <th>Nom</th>
+                                <th>Code</th>
                                 <th>Frais</th>
                                 <th>Statut</th>
-                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="allTx"></tbody>
+                        <tbody id="operationTable"></tbody>
                     </table>
                 </div>
             </div>

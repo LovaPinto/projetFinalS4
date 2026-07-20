@@ -189,3 +189,27 @@ Stack trace:
 #13 /opt/lampp/htdocs/4526_4139V1/system/Boot.php(166): CodeIgniter\Boot::runCommand()
 #14 /opt/lampp/htdocs/4526_4139V1/spark(87): CodeIgniter\Boot::bootSpark()
 #15 {main}
+CRITICAL - 2026-07-20 08:29:21 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "operator/login.php"
+[Method: GET, Route: /]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/ClientsController.php(15): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\ClientsController->index()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:29:22 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "operator/login.php"
+[Method: GET, Route: /]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/ClientsController.php(15): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\ClientsController->index()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
