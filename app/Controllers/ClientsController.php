@@ -5,14 +5,14 @@ namespace App\Controllers;
 use App\Models\ClientsModel;
 use App\Models\PrefixOperateurModel;
 
-class ClientAuthController extends BaseController
+class ClientsController extends BaseController
 {
     /**
      * Affiche le formulaire de saisie du numéro de téléphone.
      */
     public function index()
     {
-        return view('client/login');
+        return view('Template/operator/login.php');
     }
 
     /**
