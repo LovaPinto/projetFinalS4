@@ -10,22 +10,28 @@ class OperateursSeeder extends Seeder
     {
         $data = [
             [
-                'nom'           => 'Orange',
-                'code'          => 'ORG',
-                'actif'         => 1,
-                'date_creation' => date('Y-m-d H:i:s'),
+                'nom'            => 'Orange',
+                'code'           => 'ORG',
+                'actif'          => 1,
+                'commission_pct' => 2.0,
+                'est_principal'  => 1,
+                'date_creation'  => date('Y-m-d H:i:s'),
             ],
             [
-                'nom'           => 'Airtel',
-                'code'          => 'ATL',
-                'actif'         => 1,
-                'date_creation' => date('Y-m-d H:i:s'),
+                'nom'            => 'Airtel',
+                'code'           => 'ATL',
+                'actif'          => 1,
+                'commission_pct' => 2.0,
+                'est_principal'  => 0,
+                'date_creation'  => date('Y-m-d H:i:s'),
             ],
             [
-                'nom'           => 'Yas',
-                'code'          => 'YAS',
-                'actif'         => 1,
-                'date_creation' => date('Y-m-d H:i:s'),
+                'nom'            => 'Yas',
+                'code'           => 'YAS',
+                'actif'          => 1,
+                'commission_pct' => 2.5,
+                'est_principal'  => 0,
+                'date_creation'  => date('Y-m-d H:i:s'),
             ],
         ];
 

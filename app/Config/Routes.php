@@ -38,3 +38,12 @@ $routes->post('/operator/fees/add', 'OperatorController::feeAdd');
 $routes->get('/operator/fees/delete/(:num)', 'OperatorController::feeDelete/$1');
 $routes->get('/operator/transactions', 'OperatorController::transactions');
 $routes->get('/operator/gains', 'OperatorController::gains');
+
+$routes->get('/operator/operators', 'OperatorController::operators');
+$routes->post('/operator/operators/add', 'OperatorController::operatorAdd');
+$routes->get('/operator/operators/edit/(:num)', 'OperatorController::operatorEdit/$1');
+$routes->post('/operator/operators/update/(:num)', 'OperatorController::operatorUpdate/$1');
+$routes->get('/operator/operators/toggle/(:num)', 'OperatorController::operatorToggle/$1');
+
+$routes->get('/operator/reversments', 'OperatorController::reversments');
+$routes->post('/operator/reversments/update/(:num)', 'OperatorController::reversmentUpdateStatut/$1');

@@ -19,6 +19,8 @@ class TransactionModel extends Model
         'montant',
         'frais',
         'montant_total',
+        'commission',
+        'type_transfert',
         'solde_avant',
         'solde_apres',
         'statut',
