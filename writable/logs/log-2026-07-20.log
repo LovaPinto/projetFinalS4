@@ -1,126 +1,52 @@
-CRITICAL - 2026-07-20 10:48:52 --> Error: Class "App\Controllers\OperateurModel" not found
-[Method: GET, Route: dashboard]
-in APPPATH/Controllers/DashbordController.php on line 29.
- 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\DashbordController->index()
- 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-CRITICAL - 2026-07-20 10:58:38 --> Error: Class "App\Controllers\OperateurModel" not found
-[Method: GET, Route: dashboard]
-in APPPATH/Controllers/DashbordController.php on line 29.
- 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\DashbordController->index()
- 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-CRITICAL - 2026-07-20 11:00:18 --> Error: Class "App\Controllers\OperateurModel" not found
-[Method: GET, Route: depot]
-in APPPATH/Controllers/DepotController.php on line 22.
- 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\DepotController->index()
- 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-CRITICAL - 2026-07-20 11:01:34 --> ParseError: syntax error, unexpected identifier "solde", expecting ")"
-[Method: GET, Route: retrait]
-in APPPATH/Controllers/RetraitController.php on line 57.
- 1 SYSTEMPATH/Autoloader/Autoloader.php(295): CodeIgniter\Autoloader\Autoloader->includeFile()
- 2 SYSTEMPATH/Autoloader/Autoloader.php(271): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
- 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
- 4 SYSTEMPATH/Router/Router.php(792): class_exists()
- 5 SYSTEMPATH/Router/Router.php(230): CodeIgniter\Router\Router->processRouteAttributes()
- 6 SYSTEMPATH/CodeIgniter.php(829): CodeIgniter\Router\Router->handle()
- 7 SYSTEMPATH/CodeIgniter.php(441): CodeIgniter\CodeIgniter->tryToRouteIt()
- 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-CRITICAL - 2026-07-20 11:01:36 --> ParseError: syntax error, unexpected identifier "solde", expecting ")"
-[Method: GET, Route: retrait]
-in APPPATH/Controllers/RetraitController.php on line 57.
- 1 SYSTEMPATH/Autoloader/Autoloader.php(295): CodeIgniter\Autoloader\Autoloader->includeFile()
- 2 SYSTEMPATH/Autoloader/Autoloader.php(271): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
- 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
- 4 SYSTEMPATH/Router/Router.php(792): class_exists()
- 5 SYSTEMPATH/Router/Router.php(230): CodeIgniter\Router\Router->processRouteAttributes()
- 6 SYSTEMPATH/CodeIgniter.php(829): CodeIgniter\Router\Router->handle()
- 7 SYSTEMPATH/CodeIgniter.php(441): CodeIgniter\CodeIgniter->tryToRouteIt()
- 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-CRITICAL - 2026-07-20 11:05:40 --> ErrorException: fwrite(): Write of 30 bytes failed with errno=32 Broken pipe
-[Method: CLI, Route: migrate]
-in SYSTEMPATH/CLI/InputOutput.php on line 78.
- 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(8, 'fwrite(): Write of 30 bytes failed with errno=32 Broken pipe', '/opt/lampp/htdocs/4526_4139V1/system/CLI/InputOutput.php', 78)
- 2 SYSTEMPATH/CLI/InputOutput.php(78): fwrite(resource (stream), 'Running all new migrations...
-')
- 3 SYSTEMPATH/CLI/CLI.php(1126): CodeIgniter\CLI\InputOutput->fwrite(resource (stream), 'Running all new migrations...
-')
- 4 SYSTEMPATH/CLI/CLI.php(465): CodeIgniter\CLI\CLI::fwrite(resource (stream), 'Running all new migrations...
-')
- 5 SYSTEMPATH/Commands/Database/Migrate.php(76): CodeIgniter\CLI\CLI::write('Running all new migrations...', 'yellow')
- 6 SYSTEMPATH/CLI/Commands.php(74): CodeIgniter\Commands\Database\Migrate->run([])
- 7 SYSTEMPATH/CLI/Console.php(47): CodeIgniter\CLI\Commands->run('migrate', [])
- 8 SYSTEMPATH/Boot.php(442): CodeIgniter\CLI\Console->run()
- 9 SYSTEMPATH/Boot.php(166): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
-10 ROOTPATH/spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
-CRITICAL - 2026-07-20 11:05:40 --> ErrorException: Uncaught ErrorException: fwrite(): Write of 17 bytes failed with errno=32 Broken pipe in /opt/lampp/htdocs/4526_4139V1/system/CLI/InputOutput.php:78
-Stack trace:
-#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(8, 'fwrite(): Write...', '/opt/lampp/htdo...', 78)
-#1 /opt/lampp/htdocs/4526_4139V1/system/CLI/InputOutput.php(78): fwrite(Resource id #2, '[ErrorException...')
-#2 /opt/lampp/htdocs/4526_4139V1/system/CLI/CLI.php(1126): CodeIgniter\CLI\InputOutput->fwrite(Resource id #2, '[ErrorException...')
-#3 /opt/lampp/htdocs/4526_4139V1/system/CLI/CLI.php(465): CodeIgniter\CLI\CLI::fwrite(Resource id #2, '[ErrorException...')
-#4 /opt/lampp/htdocs/4526_4139V1/app/Views/errors/cli/error_exception.php(6): CodeIgniter\CLI\CLI::write('[ErrorException...', 'light_gray', 'red')
-#5 /opt/lampp/htdocs/4526_4139V1/app/Views/errors/cli/production.php(5): include('/opt/lampp/htdo...')
-#6 /opt/lampp/htdocs/4526_4139V1/system/Debug/BaseExceptionHandler.php(270): include('/opt/lampp/htdo...')
-#7 /opt/lampp/htdocs/4526_4139V1/system/Debug/BaseExceptionHandler.php(273): CodeIgniter\Debug\BaseExceptionHandler->CodeIgniter\Debug\{closure}()
-#8 /opt/lampp/htdocs/4526_4139V1/system/Debug/ExceptionHandler.php(126): CodeIgniter\Debug\BaseExceptionHandler->render(Object(ErrorException), 500, '/opt/lampp/htdo...')
-#9 /opt/lampp/htdocs/4526_4139V1/system/Debug/Exceptions.php(151): CodeIgniter\Debug\ExceptionHandler->handle(Object(ErrorException), Object(CodeIgniter\HTTP\CLIRequest), Object(CodeIgniter\HTTP\Response), 500, 1)
-#10 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(ErrorException))
-#11 {main}
-  thrown
-【Previous Exception】
-ErrorException
-fwrite(): Write of 30 bytes failed with errno=32 Broken pipe
-#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(8, 'fwrite(): Write...', '/opt/lampp/htdo...', 78)
-#1 /opt/lampp/htdocs/4526_4139V1/system/CLI/InputOutput.php(78): fwrite(Resource id #2, 'Running all new...')
-#2 /opt/lampp/htdocs/4526_4139V1/system/CLI/CLI.php(1126): CodeIgniter\CLI\InputOutput->fwrite(Resource id #2, 'Running all new...')
-#3 /opt/lampp/htdocs/4526_4139V1/system/CLI/CLI.php(465): CodeIgniter\CLI\CLI::fwrite(Resource id #2, 'Running all new...')
-#4 /opt/lampp/htdocs/4526_4139V1/system/Commands/Database/Migrate.php(76): CodeIgniter\CLI\CLI::write('Running all new...', 'yellow')
-#5 /opt/lampp/htdocs/4526_4139V1/system/CLI/Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
-#6 /opt/lampp/htdocs/4526_4139V1/system/CLI/Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
-#7 /opt/lampp/htdocs/4526_4139V1/system/Boot.php(442): CodeIgniter\CLI\Console->run()
-#8 /opt/lampp/htdocs/4526_4139V1/system/Boot.php(166): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
-#9 /opt/lampp/htdocs/4526_4139V1/spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
-#10 {main}
-[Method: CLI, Route: migrate]
-in SYSTEMPATH/CLI/InputOutput.php on line 78.
- 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
-ERROR - 2026-07-20 11:06:27 --> FOREIGN KEY constraint failed
-in SYSTEMPATH/Database/SQLite3/Connection.php on line 163.
- 1 SYSTEMPATH/Database/SQLite3/Connection.php(163): SQLite3->exec()
+
+ERROR - 2026-07-20 13:08:53 --> Unable to prepare statement: no such column: operateur_id
+in SYSTEMPATH/Database/SQLite3/Connection.php on line 164.
+ 1 SYSTEMPATH/Database/SQLite3/Connection.php(164): SQLite3->query()
  2 SYSTEMPATH/Database/BaseConnection.php(910): CodeIgniter\Database\SQLite3\Connection->execute()
  3 SYSTEMPATH/Database/BaseConnection.php(827): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Database/BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute()
- 6 APPPATH/Database/Seeds/BaremesFrais.php(23): CodeIgniter\Database\BaseBuilder->insertBatch()
- 7 SYSTEMPATH/Database/Seeder.php(155): App\Database\Seeds\BaremesFrais->run()
- 8 SYSTEMPATH/Commands/Database/Seed.php(79): CodeIgniter\Database\Seeder->call()
- 9 SYSTEMPATH/CLI/Commands.php(74): CodeIgniter\Commands\Database\Seed->run()
-10 SYSTEMPATH/CLI/Console.php(47): CodeIgniter\CLI\Commands->run()
-11 SYSTEMPATH/Boot.php(442): CodeIgniter\CLI\Console->run()
-12 SYSTEMPATH/Boot.php(166): CodeIgniter\Boot::runCommand()
-13 ROOTPATH/spark(87): CodeIgniter\Boot::bootSpark()
-ERROR - 2026-07-20 11:07:20 --> FOREIGN KEY constraint failed
-in SYSTEMPATH/Database/SQLite3/Connection.php on line 163.
- 1 SYSTEMPATH/Database/SQLite3/Connection.php(163): SQLite3->exec()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(523): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Models/BaremesFraisModel.php(117): CodeIgniter\Model->countAllResults()
+ 7 APPPATH/Controllers/TransfertController.php(30): App\Models\BaremesFraisModel->operateurAFraisRetrait()
+ 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:08:53 --> CodeIgniter\Database\Exceptions\DatabaseException: Unable to prepare statement: no such column: operateur_id
+[Method: GET, Route: transfert]
+in SYSTEMPATH/Database/BaseConnection.php on line 865.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(523): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 3 APPPATH/Models/BaremesFraisModel.php(117): CodeIgniter\Model->countAllResults()
+ 4 APPPATH/Controllers/TransfertController.php(30): App\Models\BaremesFraisModel->operateurAFraisRetrait()
+ 5 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 6 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 8 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+10 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:08:53 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unable to prepare statement: no such column: operateur_id
+in SYSTEMPATH/Database/SQLite3/Connection.php on line 174.
+ 1 SYSTEMPATH/Database/BaseConnection.php(910): CodeIgniter\Database\SQLite3\Connection->execute()
+ 2 SYSTEMPATH/Database/BaseConnection.php(827): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(523): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 5 APPPATH/Models/BaremesFraisModel.php(117): CodeIgniter\Model->countAllResults()
+ 6 APPPATH/Controllers/TransfertController.php(30): App\Models\BaremesFraisModel->operateurAFraisRetrait()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:08:53 --> [Caused by] SQLite3Exception: Unable to prepare statement: no such column: operateur_id
+in SYSTEMPATH/Database/SQLite3/Connection.php on line 164.
+ 1 SYSTEMPATH/Database/SQLite3/Connection.php(164): SQLite3->query()
  2 SYSTEMPATH/Database/BaseConnection.php(910): CodeIgniter\Database\SQLite3\Connection->execute()
  3 SYSTEMPATH/Database/BaseConnection.php(827): CodeIgniter\Database\BaseConnection->simpleQuery()
+<<<<<<< HEAD
  4 SYSTEMPATH/Database/BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query()
  5 SYSTEMPATH/Database/BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute()
  6 APPPATH/Database/Seeds/BaremesFrais.php(23): CodeIgniter\Database\BaseBuilder->insertBatch()
@@ -422,3 +348,75 @@ Which table do you want to see?', [...], [...])
  6 SYSTEMPATH\Boot.php(442): CodeIgniter\CLI\Console->run()
  7 SYSTEMPATH\Boot.php(166): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
  8 ROOTPATH\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+=======
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(523): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Models/BaremesFraisModel.php(117): CodeIgniter\Model->countAllResults()
+ 7 APPPATH/Controllers/TransfertController.php(30): App\Models\BaremesFraisModel->operateurAFraisRetrait()
+ 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:29 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: transfert]
+in APPPATH/Controllers/TransfertController.php on line 24.
+ 1 APPPATH/Controllers/TransfertController.php(24): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:31 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: historique]
+in APPPATH/Controllers/HistoriqueController.php on line 22.
+ 1 APPPATH/Controllers/HistoriqueController.php(22): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\HistoriqueController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:32 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: transfert]
+in APPPATH/Controllers/TransfertController.php on line 24.
+ 1 APPPATH/Controllers/TransfertController.php(24): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:32 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: retrait]
+in APPPATH/Controllers/RetraitController.php on line 24.
+ 1 APPPATH/Controllers/RetraitController.php(24): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\RetraitController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:35 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: retrait]
+in APPPATH/Controllers/RetraitController.php on line 24.
+ 1 APPPATH/Controllers/RetraitController.php(24): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\RetraitController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 13:10:41 --> ErrorException: Trying to access array offset on null
+[Method: GET, Route: transfert]
+in APPPATH/Controllers/TransfertController.php on line 24.
+ 1 APPPATH/Controllers/TransfertController.php(24): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+>>>>>>> d4fd4a1eb9e0aa8a10cd1378d3398f1fa28f3ab2
