@@ -401,3 +401,15 @@ in SYSTEMPATH\Database\SQLite3\Connection.php on line 164.
  8 SYSTEMPATH\Boot.php(417): CodeIgniter\CodeIgniter->run()
  9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
 10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-07-20 12:50:14 --> TypeError: CodeIgniter\CLI\InputOutput::input(): Return value must be of type string, false returned
+[Method: CLI, Route: db:table]
+in SYSTEMPATH\CLI\InputOutput.php on line 46.
+ 1 SYSTEMPATH\CLI\CLI.php(260): CodeIgniter\CLI\InputOutput->input()
+ 2 SYSTEMPATH\CLI\CLI.php(298): CodeIgniter\CLI\CLI::prompt('
+Which table do you want to see?', [...], [...])
+ 3 SYSTEMPATH\Commands\Database\ShowTableInfo.php(145): CodeIgniter\CLI\CLI::promptByKey([], [...], 'required')
+ 4 SYSTEMPATH\CLI\Commands.php(74): CodeIgniter\Commands\Database\ShowTableInfo->run([])
+ 5 SYSTEMPATH\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:table', [])
+ 6 SYSTEMPATH\Boot.php(442): CodeIgniter\CLI\Console->run()
+ 7 SYSTEMPATH\Boot.php(166): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+ 8 ROOTPATH\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))

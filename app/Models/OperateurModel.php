@@ -11,5 +11,5 @@ class OperateurModel extends Model
     protected $returnType    = 'array';
     protected $useTimestamps = false;
 
-    protected $allowedFields = ['nom', 'code', 'actif', 'date_creation'];
+    protected $allowedFields = ['nom', 'code', 'actif', 'commission_pct', 'est_principal', 'date_creation'];
 }

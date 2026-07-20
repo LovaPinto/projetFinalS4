@@ -8,6 +8,7 @@ use App\Models\PrefixOperateurModel;
 use App\Models\TypesOperationModel;
 use App\Models\BaremesFraisModel;
 use App\Models\TransactionModel;
+use App\Models\ReversmentModel;
 
 class OperatorController extends BaseController
 {
@@ -17,6 +18,12 @@ class OperatorController extends BaseController
             return redirect()->to('/operator/login');
         }
         return null;
+    }
+
+    private function getOperateurPrincipal(): ?array
+    {
+        $opModel = new OperateurModel();
+        return $opModel->where('est_principal', 1)->first();
     }
 
     public function login()
@@ -35,9 +42,12 @@ class OperatorController extends BaseController
         $password = trim((string) $this->request->getPost('password'));
 
         if ($username === 'admin' && $password === 'admin') {
+            $opModel    = new OperateurModel();
+            $principal  = $opModel->where('est_principal', 1)->first();
             session()->set([
                 'operator_logged_in' => true,
                 'operator_name'      => 'Administrateur',
+                'operator_id'        => $principal['id'] ?? null,
             ]);
             return redirect()->to('/operator/dashboard');
         }
@@ -50,57 +60,201 @@ class OperatorController extends BaseController
     {
         session()->remove('operator_logged_in');
         session()->remove('operator_name');
+        session()->remove('operator_id');
         return redirect()->to('/operator/login');
     }
+
+    // ─── DASHBOARD V2 ───────────────────────────────────────
 
     public function dashboard()
     {
         $redir = $this->requireAuth();
         if ($redir) return $redir;
 
-        $clientModel     = new ClientsModel();
-        $transactionModel = new TransactionModel();
-        $operateurModel   = new OperateurModel();
+        $db = \Config\Database::connect();
 
-        $totalClients   = $clientModel->countAllResults();
-        $totalBalance   = $clientModel->selectSum('solde')->first()['solde'] ?? 0;
-        $totalTx        = $transactionModel->countAllResults();
-        $totalFrais     = $transactionModel->selectSum('frais')->first()['frais'] ?? 0;
+        $totalClients    = $db->table('clients')->countAllResults();
+        $totalBalance    = (float) ($db->table('clients')->selectSum('solde')->get()->getRowArray()['solde'] ?? 0);
+        $totalTx         = $db->table('transactions')->countAllResults();
+        $totalFrais      = (float) ($db->table('transactions')->selectSum('frais')->get()->getRowArray()['frais'] ?? 0);
+        $totalCommission = (float) ($db->table('transactions')->selectSum('commission')->get()->getRowArray()['commission'] ?? 0);
+        $opExterneCount  = $db->table('operateurs')->where('est_principal', 0)->where('actif', 1)->countAllResults();
 
-        $recentTx = $transactionModel
-            ->select('transactions.*, types_operation.libelle AS type_libelle, clients.numero_telephone')
-            ->join('types_operation', 'types_operation.id = transactions.type_operation_id')
-            ->join('clients', 'clients.id = transactions.client_source_id', 'left')
-            ->orderBy('date_creation', 'DESC')
-            ->findAll(10);
+        $txInternes = $db->table('transactions')
+            ->where('type_transfert', 'INTERNE')
+            ->where('statut', 'REUSSI')
+            ->countAllResults();
+        $txExternes = $db->table('transactions')
+            ->where('type_transfert', 'EXTERNE')
+            ->where('statut', 'REUSSI')
+            ->countAllResults();
+
+        $montantRestantReverser = (float) ($db->table('reversments')
+            ->where('statut', 'EN_ATTENTE')
+            ->selectSum('montant')
+            ->get()
+            ->getRowArray()['montant'] ?? 0);
+
+        $recentTx = $db->query(
+            "SELECT tr.*, to2.libelle AS type_libelle, cs.numero_telephone AS tel_source, cd.numero_telephone AS tel_dest
+             FROM transactions tr
+             JOIN types_operation to2 ON to2.id = tr.type_operation_id
+             LEFT JOIN clients cs ON cs.id = tr.client_source_id
+             LEFT JOIN clients cd ON cd.id = tr.client_destination_id
+             ORDER BY tr.date_creation DESC LIMIT 10"
+        )->getResultArray();
 
         return view('Template/operator/dashboard', [
-            'totalClients' => $totalClients,
-            'totalBalance' => $totalBalance,
-            'totalTx'      => $totalTx,
-            'totalFrais'   => $totalFrais,
-            'recentTx'     => $recentTx,
+            'totalClients'          => $totalClients,
+            'totalBalance'          => $totalBalance,
+            'totalTx'               => $totalTx,
+            'totalFrais'            => $totalFrais,
+            'totalCommission'       => $totalCommission,
+            'opExterneCount'        => $opExterneCount,
+            'txInternes'            => $txInternes,
+            'txExternes'            => $txExternes,
+            'montantRestantReverser'=> $montantRestantReverser,
+            'recentTx'              => $recentTx,
         ]);
     }
 
-    public function clients()
+    // ─── GESTION DES OPERATEURS ─────────────────────────────
+
+    public function operators()
     {
         $redir = $this->requireAuth();
         if ($redir) return $redir;
 
-        $clientModel   = new ClientsModel();
-        $operateurModel = new OperateurModel();
+        $opModel    = new OperateurModel();
+        $prefixModel = new PrefixOperateurModel();
 
-        $allClients = $clientModel
-            ->select('clients.*, operateurs.nom AS operateur_nom')
-            ->join('operateurs', 'operateurs.id = clients.operateur_id')
-            ->orderBy('clients.date_creation', 'DESC')
-            ->findAll();
+        $allOps = $opModel->orderBy('est_principal', 'DESC')->orderBy('nom', 'ASC')->findAll();
 
-        return view('Template/operator/clients', [
-            'clients' => $allClients,
+        foreach ($allOps as &$op) {
+            $op['nb_prefixes'] = $prefixModel->where('operateur_id', $op['id'])->countAllResults();
+        }
+
+        return view('Template/operator/operators', [
+            'operateurs' => $allOps,
         ]);
     }
+
+    public function operatorAdd()
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $nom      = trim((string) $this->request->getPost('nom'));
+        $code     = strtoupper(trim((string) $this->request->getPost('code')));
+        $pct      = (float) $this->request->getPost('commission_pct');
+        $principal = (int) $this->request->getPost('est_principal');
+
+        if (empty($nom) || empty($code)) {
+            return redirect()->back()->with('error', 'Nom et code sont requis.');
+        }
+
+        if ($pct < 0 || $pct > 100) {
+            return redirect()->back()->with('error', 'Le pourcentage de commission doit être entre 0 et 100.');
+        }
+
+        $opModel = new OperateurModel();
+        $exists = $opModel->where('code', $code)->first();
+        if ($exists) {
+            return redirect()->back()->with('error', 'Ce code existe déjà.');
+        }
+
+        if ($principal) {
+            $opModel->where('est_principal', 1)->set('est_principal', 0)->update();
+        }
+
+        $opModel->insert([
+            'nom'            => $nom,
+            'code'           => $code,
+            'actif'          => 1,
+            'commission_pct' => $pct,
+            'est_principal'  => $principal,
+            'date_creation'  => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('/operator/operators')->with('success', 'Opérateur ajouté avec succès.');
+    }
+
+    public function operatorEdit($id)
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $opModel = new OperateurModel();
+        $op = $opModel->find($id);
+        if (!$op) {
+            return redirect()->to('/operator/operators')->with('error', 'Opérateur introuvable.');
+        }
+
+        return view('Template/operator/operator_edit', [
+            'operateur' => $op,
+        ]);
+    }
+
+    public function operatorUpdate($id)
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $opModel = new OperateurModel();
+        $op = $opModel->find($id);
+        if (!$op) {
+            return redirect()->to('/operator/operators')->with('error', 'Opérateur introuvable.');
+        }
+
+        $nom      = trim((string) $this->request->getPost('nom'));
+        $code     = strtoupper(trim((string) $this->request->getPost('code')));
+        $pct      = (float) $this->request->getPost('commission_pct');
+        $actif    = (int) $this->request->getPost('actif');
+        $principal = (int) $this->request->getPost('est_principal');
+
+        if (empty($nom) || empty($code)) {
+            return redirect()->back()->with('error', 'Nom et code sont requis.');
+        }
+
+        if ($pct < 0 || $pct > 100) {
+            return redirect()->back()->with('error', 'Le pourcentage de commission doit être entre 0 et 100.');
+        }
+
+        $existsCode = $opModel->where('code', $code)->where('id !=', $id)->first();
+        if ($existsCode) {
+            return redirect()->back()->with('error', 'Ce code est déjà utilisé par un autre opérateur.');
+        }
+
+        if ($principal) {
+            $opModel->where('est_principal', 1)->where('id !=', $id)->set('est_principal', 0)->update();
+        }
+
+        $opModel->update($id, [
+            'nom'            => $nom,
+            'code'           => $code,
+            'actif'          => $actif,
+            'commission_pct' => $pct,
+            'est_principal'  => $principal,
+        ]);
+
+        return redirect()->to('/operator/operators')->with('success', 'Opérateur mis à jour.');
+    }
+
+    public function operatorToggle($id)
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $opModel = new OperateurModel();
+        $op = $opModel->find($id);
+        if ($op) {
+            $opModel->update($id, ['actif' => $op['actif'] ? 0 : 1]);
+        }
+
+        return redirect()->to('/operator/operators')->with('success', 'Statut mis à jour.');
+    }
+
+    // ─── GESTION DES PREFIXES ───────────────────────────────
 
     public function prefixes()
     {
@@ -129,8 +283,8 @@ class OperatorController extends BaseController
         $redir = $this->requireAuth();
         if ($redir) return $redir;
 
-        $prefixe      = trim((string) $this->request->getPost('prefixe'));
-        $operateurId  = (int) $this->request->getPost('operateur_id');
+        $prefixe     = trim((string) $this->request->getPost('prefixe'));
+        $operateurId = (int) $this->request->getPost('operateur_id');
 
         if (!preg_match('/^\d{3}$/', $prefixe)) {
             return redirect()->back()->with('error', 'Le préfixe doit contenir exactement 3 chiffres.');
@@ -162,6 +316,8 @@ class OperatorController extends BaseController
 
         return redirect()->to('/operator/prefixes')->with('success', 'Préfixe supprimé.');
     }
+
+    // ─── TYPES D'OPERATIONS ─────────────────────────────────
 
     public function operations()
     {
@@ -217,13 +373,15 @@ class OperatorController extends BaseController
         return redirect()->to('/operator/operations')->with('success', 'Statut mis à jour.');
     }
 
+    // ─── TRANCHES DE FRAIS ──────────────────────────────────
+
     public function fees()
     {
         $redir = $this->requireAuth();
         if ($redir) return $redir;
 
-        $baremeModel  = new BaremesFraisModel();
-        $typeModel    = new TypesOperationModel();
+        $baremeModel = new BaremesFraisModel();
+        $typeModel   = new TypesOperationModel();
 
         $allFees = $baremeModel
             ->select('baremes_frais.*, types_operation.code AS type_code, types_operation.libelle AS type_libelle')
@@ -277,27 +435,85 @@ class OperatorController extends BaseController
         return redirect()->to('/operator/fees')->with('success', 'Tranche de frais supprimée.');
     }
 
+    // ─── COMPTES CLIENTS ────────────────────────────────────
+
+    public function clients()
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $clientModel = new ClientsModel();
+
+        $allClients = $clientModel
+            ->select('clients.*, operateurs.nom AS operateur_nom')
+            ->join('operateurs', 'operateurs.id = clients.operateur_id')
+            ->orderBy('clients.date_creation', 'DESC')
+            ->findAll();
+
+        return view('Template/operator/clients', [
+            'clients' => $allClients,
+        ]);
+    }
+
+    // ─── TRANSACTIONS V2 (filtres + commission) ──────────────
+
     public function transactions()
     {
         $redir = $this->requireAuth();
         if ($redir) return $redir;
 
-        $transactionModel = new TransactionModel();
+        $db = \Config\Database::connect();
 
-        $allTx = $transactionModel
-            ->select('transactions.*, types_operation.libelle AS type_libelle, 
-                      cs.numero_telephone AS client_source_tel, 
-                      cd.numero_telephone AS client_dest_tel')
-            ->join('types_operation', 'types_operation.id = transactions.type_operation_id')
-            ->join('clients cs', 'cs.id = transactions.client_source_id', 'left')
-            ->join('clients cd', 'cd.id = transactions.client_destination_id', 'left')
-            ->orderBy('transactions.date_creation', 'DESC')
-            ->findAll();
+        $filterType   = $this->request->getGet('type');
+        $filterOp     = $this->request->getGet('operateur');
+        $filterTxType = $this->request->getGet('type_transfert');
+
+        $builder = $db->table('transactions tr');
+        $builder->select(
+            'tr.*, to2.libelle AS type_libelle, 
+             cs.numero_telephone AS tel_source, cd.numero_telephone AS tel_dest,
+             os.nom AS op_source, od.nom AS op_dest'
+        );
+        $builder->join('types_operation to2', 'to2.id = tr.type_operation_id');
+        $builder->join('clients cs', 'cs.id = tr.client_source_id', 'left');
+        $builder->join('clients cd', 'cd.id = tr.client_destination_id', 'left');
+        $builder->join('prefixes_operateur ps', "ps.prefixe = SUBSTR(cs.numero_telephone, 1, 3)", 'left');
+        $builder->join('operateurs os', 'os.id = ps.operateur_id', 'left');
+        $builder->join('prefixes_operateur pd', "pd.prefixe = SUBSTR(cd.numero_telephone, 1, 3)", 'left');
+        $builder->join('operateurs od', 'od.id = pd.operateur_id', 'left');
+
+        if (!empty($filterType)) {
+            $builder->where('to2.code', $filterType);
+        }
+        if (!empty($filterTxType)) {
+            $builder->where('tr.type_transfert', $filterTxType);
+        }
+        if (!empty($filterOp)) {
+            $builder->groupStart();
+            $builder->where('os.id', $filterOp);
+            $builder->orWhere('od.id', $filterOp);
+            $builder->groupEnd();
+        }
+
+        $builder->orderBy('tr.date_creation', 'DESC');
+        $allTx = $builder->get()->getResultArray();
+
+        $opModel      = new OperateurModel();
+        $allOperateurs = $opModel->where('actif', 1)->findAll();
+        $typeModel    = new TypesOperationModel();
+        $allTypes     = $typeModel->findAll();
 
         return view('Template/operator/transactions', [
-            'transactions' => $allTx,
+            'transactions'   => $allTx,
+            'operateurs'     => $allOperateurs,
+            'types'          => $allTypes,
+            'filterType'     => $filterType,
+            'filterOp'       => $filterOp,
+            'filterTxType'   => $filterTxType,
         ]);
     }
+
+    // ─── GAINS V2 (frais internes + commissions externes) ────
 
     public function gains()
     {
@@ -306,34 +522,124 @@ class OperatorController extends BaseController
 
         $db = \Config\Database::connect();
 
-        $gainsParType = $db->query(
-            "SELECT t.code, t.libelle, 
-                    COUNT(tr.id) AS nb_operations, 
-                    COALESCE(SUM(tr.frais), 0) AS total_frais_encaisses
-             FROM types_operation t
-             LEFT JOIN transactions tr ON tr.type_operation_id = t.id AND tr.statut = 'REUSSI'
-             GROUP BY t.code, t.libelle
-             ORDER BY total_frais_encaisses DESC"
-        )->getResultArray();
+        $gainsInternes = (float) ($db->query(
+            "SELECT COALESCE(SUM(tr.frais), 0) AS total
+             FROM transactions tr
+             WHERE tr.type_transfert = 'INTERNE' AND tr.statut = 'REUSSI'"
+        )->getRowArray()['total'] ?? 0);
 
-        $totalFrais = array_sum(array_column($gainsParType, 'total_frais_encaisses'));
-        $totalOps   = array_sum(array_column($gainsParType, 'nb_operations'));
+        $gainsExternesFrais = (float) ($db->query(
+            "SELECT COALESCE(SUM(tr.frais), 0) AS total
+             FROM transactions tr
+             WHERE tr.type_transfert = 'EXTERNE' AND tr.statut = 'REUSSI'"
+        )->getRowArray()['total'] ?? 0);
 
-        $gainsParTypeDetail = [];
-        foreach ($gainsParType as $row) {
-            $gainsParTypeDetail[] = [
-                'code'          => $row['code'],
-                'libelle'       => $row['libelle'],
-                'nb_operations' => (int) $row['nb_operations'],
-                'total_frais'   => (float) $row['total_frais_encaisses'],
-                'pourcentage'   => $totalFrais > 0 ? round(((float) $row['total_frais_encaisses'] / $totalFrais) * 100, 1) : 0,
-            ];
-        }
+        $gainsExternesCommission = (float) ($db->query(
+            "SELECT COALESCE(SUM(tr.commission), 0) AS total
+             FROM transactions tr
+             WHERE tr.type_transfert = 'EXTERNE' AND tr.statut = 'REUSSI'"
+        )->getRowArray()['total'] ?? 0);
+
+        $totalRetrait = (float) ($db->query(
+            "SELECT COALESCE(SUM(tr.frais), 0) AS total
+             FROM transactions tr
+             JOIN types_operation to2 ON to2.id = tr.type_operation_id
+             WHERE to2.code = 'RETRAIT' AND tr.statut = 'REUSSI'"
+        )->getRowArray()['total'] ?? 0);
+
+        $totalDepot = (float) ($db->query(
+            "SELECT COALESCE(SUM(tr.frais), 0) AS total
+             FROM transactions tr
+             JOIN types_operation to2 ON to2.id = tr.type_operation_id
+             WHERE to2.code = 'DEPOT' AND tr.statut = 'REUSSI'"
+        )->getRowArray()['total'] ?? 0);
+
+        $nbInternes = $db->table('transactions')
+            ->where('type_transfert', 'INTERNE')
+            ->where('statut', 'REUSSI')
+            ->countAllResults();
+        $nbExternes = $db->table('transactions')
+            ->where('type_transfert', 'EXTERNE')
+            ->where('statut', 'REUSSI')
+            ->countAllResults();
+
+        $gainsTotaux = $totalRetrait + $gainsInternes + $gainsExternesFrais - $gainsExternesCommission;
 
         return view('Template/operator/gains', [
-            'gainsParType' => $gainsParTypeDetail,
-            'totalFrais'   => $totalFrais,
-            'totalOps'     => $totalOps,
+            'gainsInternes'          => $gainsInternes,
+            'gainsExternesFrais'     => $gainsExternesFrais,
+            'gainsExternesCommission'=> $gainsExternesCommission,
+            'totalRetrait'           => $totalRetrait,
+            'totalDepot'             => $totalDepot,
+            'nbInternes'             => $nbInternes,
+            'nbExternes'             => $nbExternes,
+            'gainsTotaux'            => $gainsTotaux,
         ]);
+    }
+
+    // ─── MONTANTS A REVERSER ────────────────────────────────
+
+    public function reversments()
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $db = \Config\Database::connect();
+
+        $allReversments = $db->query(
+            "SELECT r.*, tr.reference AS tx_reference, tr.montant AS tx_montant,
+                    tr.frais AS tx_frais, tr.commission AS tx_commission,
+                    tr.date_creation AS tx_date,
+                    os.nom AS op_source_nom, od.nom AS op_dest_nom,
+                    cs.numero_telephone AS tel_source, cd.numero_telephone AS tel_dest
+             FROM reversments r
+             JOIN transactions tr ON tr.id = r.transaction_id
+             JOIN operateurs os ON os.id = r.operateur_source_id
+             JOIN operateurs od ON od.id = r.operateur_dest_id
+             LEFT JOIN clients cs ON cs.id = tr.client_source_id
+             LEFT JOIN clients cd ON cd.id = tr.client_destination_id
+             ORDER BY r.date_creation DESC"
+        )->getResultArray();
+
+        $totalEnAttente = (float) ($db->table('reversments')
+            ->where('statut', 'EN_ATTENTE')
+            ->selectSum('montant')
+            ->get()->getRowArray()['montant'] ?? 0);
+        $totalEnvoye = (float) ($db->table('reversments')
+            ->where('statut', 'ENVOYE')
+            ->selectSum('montant')
+            ->get()->getRowArray()['montant'] ?? 0);
+        $totalRegle = (float) ($db->table('reversments')
+            ->where('statut', 'REGLE')
+            ->selectSum('montant')
+            ->get()->getRowArray()['montant'] ?? 0);
+
+        return view('Template/operator/reversments', [
+            'reversments'     => $allReversments,
+            'totalEnAttente'  => $totalEnAttente,
+            'totalEnvoye'     => $totalEnvoye,
+            'totalRegle'      => $totalRegle,
+        ]);
+    }
+
+    public function reversmentUpdateStatut($id)
+    {
+        $redir = $this->requireAuth();
+        if ($redir) return $redir;
+
+        $statut = trim((string) $this->request->getPost('statut'));
+        $allowed = ['EN_ATTENTE', 'ENVOYE', 'REGLE'];
+
+        if (!in_array($statut, $allowed)) {
+            return redirect()->back()->with('error', 'Statut invalide.');
+        }
+
+        $revModel = new ReversmentModel();
+        $revModel->update($id, [
+            'statut'            => $statut,
+            'date_modification' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('/operator/reversments')->with('success', 'Statut du reversment mis à jour.');
     }
 }

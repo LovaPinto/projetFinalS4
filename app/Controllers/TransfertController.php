@@ -7,6 +7,8 @@ use App\Models\BaremesFraisModel;
 use App\Models\TransactionModel;
 use App\Models\OperateurModel;
 use App\Models\TypesOperationModel;
+use App\Models\PrefixOperateurModel;
+use App\Models\ReversmentModel;
 
 class TransfertController extends BaseController
 {
@@ -61,10 +63,35 @@ class TransfertController extends BaseController
 
         $baremesModel = new BaremesFraisModel();
         $frais        = $baremesModel->calculerFrais('TRANSFERT', $montant);
-        $total        = $montant + $frais;
+
+        $prefixModel   = new PrefixOperateurModel();
+        $operateurModel = new OperateurModel();
+
+        $prefixeSource = substr($clientSource['numero_telephone'], 0, 3);
+        $prefixeDest   = substr($clientDest['numero_telephone'], 0, 3);
+
+        $rowSource = $prefixModel->where('prefixe', $prefixeSource)->where('actif', 1)->first();
+        $rowDest   = $prefixModel->where('prefixe', $prefixeDest)->where('actif', 1)->first();
+
+        $opSourceId = $rowSource['operateur_id'] ?? $clientSource['operateur_id'];
+        $opDestId   = $rowDest['operateur_id'] ?? $clientDest['operateur_id'];
+
+        $memeOperateur = ($opSourceId === $opDestId);
+
+        if ($memeOperateur) {
+            $typeTransfert = 'INTERNE';
+            $commission    = 0;
+        } else {
+            $typeTransfert = 'EXTERNE';
+            $opSource = $operateurModel->find($opSourceId);
+            $pct      = (float) ($opSource['commission_pct'] ?? 2.0);
+            $commission = round($frais * $pct / 100, 2);
+        }
+
+        $total = $montant + $frais + $commission;
 
         if ((float) $clientSource['solde'] < $total) {
-            return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais).');
+            return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais + commission).');
         }
 
         $soldeAvantSource = (float) $clientSource['solde'];
@@ -78,13 +105,15 @@ class TransfertController extends BaseController
         $reference = 'TRA-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
         $transactionModel = new TransactionModel();
-        $transactionModel->insert([
+        $txId = $transactionModel->insert([
             'reference'             => $reference,
             'type_operation_id'     => $type['id'],
             'client_source_id'      => $clientSource['id'],
             'client_destination_id' => $clientDest['id'],
             'montant'               => $montant,
             'frais'                 => $frais,
+            'commission'            => $commission,
+            'type_transfert'        => $typeTransfert,
             'montant_total'         => $total,
             'solde_avant'           => $soldeAvantSource,
             'solde_apres'           => $soldeApresSource,
@@ -92,11 +121,30 @@ class TransfertController extends BaseController
             'date_creation'         => date('Y-m-d H:i:s'),
         ]);
 
+        if (!$memeOperateur && $txId) {
+            $reversmentModel = new ReversmentModel();
+            $reversmentModel->insert([
+                'transaction_id'       => $txId,
+                'operateur_source_id'  => $opSourceId,
+                'operateur_dest_id'    => $opDestId,
+                'montant'              => $montant,
+                'statut'               => 'EN_ATTENTE',
+                'date_creation'        => date('Y-m-d H:i:s'),
+            ]);
+        }
+
         $clientModel->update($clientSource['id'], ['solde' => $soldeApresSource]);
         $clientModel->update($clientDest['id'], ['solde' => $soldeApresDest]);
 
         $session->set('solde', $soldeApresSource);
 
-        return redirect()->to('/dashboard')->with('success', "Transfert de " . number_format($montant, 0, ',', ' ') . " Ar vers " . $numeroDest . " effectué (frais : " . number_format($frais, 0, ',', ' ') . " Ar). Nouveau solde : " . number_format($soldeApresSource, 0, ',', ' ') . " Ar.");
+        $msg = "Transfert de " . number_format($montant, 0, ',', ' ') . " Ar vers " . $numeroDest . " effectué";
+        $msg .= " (type : " . $typeTransfert . ", frais : " . number_format($frais, 0, ',', ' ') . " Ar";
+        if ($commission > 0) {
+            $msg .= ", commission : " . number_format($commission, 0, ',', ' ') . " Ar";
+        }
+        $msg .= "). Nouveau solde : " . number_format($soldeApresSource, 0, ',', ' ') . " Ar.";
+
+        return redirect()->to('/dashboard')->with('success', $msg);
     }
 }
