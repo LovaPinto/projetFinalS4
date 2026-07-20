@@ -1,61 +1,129 @@
-# CodeIgniter 4 Framework
+# MobiCash - Application Mobile Money
 
-## What is CodeIgniter?
+Application Mobile Money complète développée avec CodeIgniter 4, SQLite, Bootstrap 5.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Prérequis
 
-This repository holds the distributable version of the framework.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- PHP 8.2+ avec les extensions `sqlite3` et `pdo_sqlite`
+- Wamp64 (ou tout serveur PHP)
+- Composer
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+### Activer SQLite dans Wamp
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+1. Ouvrir le menu Wamp dans la barre des tâches
+2. Cliquer sur PHP > PHP extensions
+3. Cocher `sqlite3` et `pdo_sqlite`
+4. Redémarrer les services Apache
 
-## Important Change with index.php
+## Installation
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+### Méthode automatique
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+Double-cliquer sur `setup.bat` :
 
-**Please** read the user guide for a better explanation of how CI4 works!
+```
+setup.bat
+```
 
-## Repository Management
+### Méthode manuelle
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+```bash
+# 1. Créer le dossier pour la base
+mkdir writable\database
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+# 2. Installer les dépendances
+composer install
 
-## Contributing
+# 3. Lancer les migrations
+php spark migrate
 
-We welcome contributions from the community.
+# 4. Insérer les données initiales
+php spark db:seed AppelToutes
+```
 
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the development repository.
+> Si `php` n'est pas reconnu, utilisez le chemin complet :
+> `C:\wamp64\bin\php\php8.2.13\php.exe spark migrate`
 
-## Server Requirements
+## Démarrage
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+```bash
+php spark serve
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+Ou double-cliquer sur `start.bat`.
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+Le serveur démarre sur : **http://localhost:8081**
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## URLs
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+| Page | URL |
+|------|-----|
+| Accueil | http://localhost:8081/ |
+| Connexion opérateur | http://localhost:8081/operator/login |
+| Connexion client | http://localhost:8081/client/login |
+
+## Identifiants de test
+
+### Opérateur
+- **E-mail** : admin@mobile.mg
+- **Mot de passe** : admin123
+
+### Clients
+- **0331234567** (solde : 125 000 Ar)
+- **0379876543** (solde : 70 000 Ar)
+
+## Structure du projet
+
+```
+app/
+├── Config/          Routes, Database, Filters, Autoload
+├── Controllers/     Home, OperatorController, ClientController
+├── Filters/         ClientAuthFilter, OperatorAuthFilter
+├── Libraries/       MobileMoneyService
+├── Models/          Operateur, Prefix, TypeOperation, BaremeFrais, Clients, Transaction
+├── Database/
+│   ├── Migrations/  6 migrations (toutes les tables)
+│   └── Seeds/       DatabaseSeeder complet
+└── Views/
+    ├── layouts/     operator.php, client.php
+    ├── partials/    alerts.php
+    ├── operator/    login, dashboard, prefixes, operations, fees, clients, transactions, gains
+    └── client/      login, dashboard, deposit, withdraw, transfer, history
+```
+
+## Scénarios de test
+
+### 1. Connexion client
+- Se connecter avec `0331234567`
+- Le tableau de bord affiche le solde réel depuis SQLite
+
+### 2. Dépôt (125 000 + 50 000 = 175 000 Ar)
+- Aller sur Dépôt
+- Saisir 50000
+- Solde attendu : 175 000 Ar, Frais : 0 Ar
+
+### 3. Retrait (175 000 - 20 200 = 154 800 Ar)
+- Aller sur Retrait
+- Saisir 20000
+- Frais : 200 Ar, Total débité : 20 200 Ar
+- Nouveau solde : 154 800 Ar
+
+### 4. Transfert
+- Source : 0331234567 → Destination : 0379876543
+- Montant : 10 000 Ar, Frais : 100 Ar
+- Source débitée : 10 100 Ar, Destinataire crédité : 10 000 Ar
+
+### 5. Solde insuffisant
+- Tenter un retrait supérieur au solde + frais → refusé
+
+### 6. Transfert vers soi-même
+- Tenter de s'envoyer de l'argent → refusé
+
+### 7. Préfixe invalide
+- Connexion avec un numéro dont le préfixe n'est pas actif → refusé
+
+### 8. Compte bloqué
+- L'opérateur bloque un client → le client ne peut plus se connecter
+
+### 9. Gains opérateur
+- Le total des gains = somme des frais des transactions réussies
