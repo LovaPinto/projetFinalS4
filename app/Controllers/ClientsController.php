@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\ClientModel;
-use App\Models\PrefixeOperateurModel;
+use App\Models\ClientsModel;
+use App\Models\PrefixOperateurModel;
 
 class ClientAuthController extends BaseController
 {
@@ -31,7 +31,7 @@ class ClientAuthController extends BaseController
                 ->with('error', 'Numéro de téléphone invalide.');
         }
 
-        $clientModel = new ClientModel();
+        $clientModel = new ClientsModel();
         $client      = $clientModel->where('numero_telephone', $numero)->first();
         $now         = date('Y-m-d H:i:s');
 
@@ -89,7 +89,7 @@ class ClientAuthController extends BaseController
     private function detecterOperateurId(string $numero): ?int
     {
         $prefixe      = substr($numero, 0, 3);
-        $prefixeModel = new PrefixeOperateurModel();
+        $prefixeModel = new PrefixOperateurModel();
 
         $row = $prefixeModel
             ->where('prefixe', $prefixe)
