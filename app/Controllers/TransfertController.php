@@ -25,9 +25,18 @@ class TransfertController extends BaseController
         $operateurModel = new OperateurModel();
         $operateur      = $operateurModel->find($client['operateur_id']);
 
+        $baremesModel = new BaremesFraisModel();
+        $fraisRetraitParOperateur = [];
+        $operateurs = $operateurModel->where('actif', 1)->findAll();
+        foreach ($operateurs as $op) {
+            $fraisRetraitParOperateur[$op['id']] = $baremesModel->operateurAFraisRetrait($op['id']);
+        }
+
         return view('Template/client/transfer', [
-            'client'    => $client,
-            'operateur' => $operateur,
+            'client'                => $client,
+            'operateur'             => $operateur,
+            'fraisRetraitParOperateur' => $fraisRetraitParOperateur,
+            'operateurs'            => $operateurs,
         ]);
     }
 
@@ -38,28 +47,61 @@ class TransfertController extends BaseController
             return redirect()->to('/')->with('error', 'Veuillez vous connecter.');
         }
 
-        $numeroDest = trim((string) $this->request->getPost('numero_destinataire'));
-        $montant    = (float) $this->request->getPost('montant');
+        $montantTotal = (float) $this->request->getPost('montant');
+        $destinataires = $this->request->getPost('destinataires');
+        $inclusFraisRetrait = $this->request->getPost('inclus_frais_retrait') === '1';
 
-        if (!preg_match('/^0[0-9]{9}$/', $numeroDest)) {
-            return redirect()->back()->withInput()->with('error', 'Numéro du destinataire invalide.');
+        if ($montantTotal <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Le montant doit être supérieur à 0.');
         }
 
-        if ($montant <= 0) {
-            return redirect()->back()->withInput()->with('error', 'Le montant doit être supérieur à 0.');
+        if (empty($destinataires) || !is_array($destinataires)) {
+            return redirect()->back()->withInput()->with('error', 'Veuillez ajouter au moins un destinataire.');
+        }
+
+        $destinataires = array_filter(array_map('trim', $destinataires), fn($n) => $n !== '');
+
+        if (empty($destinataires)) {
+            return redirect()->back()->withInput()->with('error', 'Veuillez ajouter au moins un destinataire.');
+        }
+
+        $destinataires = array_values($destinataires);
+
+        foreach ($destinataires as $dest) {
+            if (!preg_match('/^0[0-9]{9}$/', $dest)) {
+                return redirect()->back()->withInput()->with('error', 'Numéro invalide : ' . esc($dest) . '. Format attendu : 0XXXXXXXXX.');
+            }
+        }
+
+        if (count($destinataires) !== count(array_unique($destinataires))) {
+            return redirect()->back()->withInput()->with('error', 'Des numéros en double ont été détectés.');
         }
 
         $clientModel   = new ClientsModel();
         $clientSource  = $clientModel->find($session->get('client_id'));
-        $clientDest    = $clientModel->where('numero_telephone', $numeroDest)->first();
+        $prefixModel   = new PrefixOperateurModel();
 
-        if (!$clientDest) {
-            return redirect()->back()->withInput()->with('error', 'Ce numéro n\'est associé à aucun compte.');
+        $clientsDest = [];
+        $operateurIdsDest = [];
+
+        foreach ($destinataires as $num) {
+            $clientDest = $clientModel->where('numero_telephone', $num)->first();
+            if (!$clientDest) {
+                return redirect()->back()->withInput()->with('error', 'Le numéro ' . esc($num) . ' n\'est associé à aucun compte.');
+            }
+            if ($clientDest['id'] == $clientSource['id']) {
+                return redirect()->back()->withInput()->with('error', 'Vous ne pouvez pas transférer vers votre propre compte (' . esc($num) . ').');
+            }
+            $clientsDest[] = $clientDest;
+            $operateurIdsDest[] = $clientDest['operateur_id'];
         }
 
-        if ($clientDest['id'] == $clientSource['id']) {
-            return redirect()->back()->withInput()->with('error', 'Vous ne pouvez pas transférer vers votre propre compte.');
+        $operateurIdsDest = array_unique($operateurIdsDest);
+        if (count($operateurIdsDest) > 1) {
+            return redirect()->back()->withInput()->with('error', 'Tous les bénéficiaires doivent appartenir au même opérateur.');
         }
+
+        $operateurDestId = $operateurIdsDest[0];
 
         $baremesModel = new BaremesFraisModel();
         $frais        = $baremesModel->calculerFrais('TRANSFERT', $montant);
@@ -94,16 +136,13 @@ class TransfertController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais + commission).');
         }
 
+        $typeModel = new TypesOperationModel();
+        $typeTransfert = $typeModel->where('code', 'TRANSFERT')->first();
+
         $soldeAvantSource = (float) $clientSource['solde'];
         $soldeApresSource = $soldeAvantSource - $total;
-        $soldeAvantDest   = (float) $clientDest['solde'];
-        $soldeApresDest   = $soldeAvantDest + $montant;
 
-        $typeModel = new TypesOperationModel();
-        $type      = $typeModel->where('code', 'TRANSFERT')->first();
-
-        $reference = 'TRA-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(3)));
-
+        $referenceBase = 'TRA-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2)));
         $transactionModel = new TransactionModel();
         $txId = $transactionModel->insert([
             'reference'             => $reference,
@@ -134,8 +173,6 @@ class TransfertController extends BaseController
         }
 
         $clientModel->update($clientSource['id'], ['solde' => $soldeApresSource]);
-        $clientModel->update($clientDest['id'], ['solde' => $soldeApresDest]);
-
         $session->set('solde', $soldeApresSource);
 
         $msg = "Transfert de " . number_format($montant, 0, ',', ' ') . " Ar vers " . $numeroDest . " effectué";

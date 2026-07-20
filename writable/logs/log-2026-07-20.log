@@ -131,6 +131,15 @@ in SYSTEMPATH/Database/SQLite3/Connection.php on line 163.
 11 SYSTEMPATH/Boot.php(442): CodeIgniter\CLI\Console->run()
 12 SYSTEMPATH/Boot.php(166): CodeIgniter\Boot::runCommand()
 13 ROOTPATH/spark(87): CodeIgniter\Boot::bootSpark()
+CRITICAL - 2026-07-20 12:45:11 --> Error: Class "App\Controllers\PrefixOperateurModel" not found
+[Method: POST, Route: transfert/executer]
+in APPPATH/Controllers/TransfertController.php on line 80.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\TransfertController->executer()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
 ERROR - 2026-07-20 11:53:04 --> Unable to prepare statement: no such table: vue_gains_par_type
 in SYSTEMPATH\Database\SQLite3\Connection.php on line 164.
  1 SYSTEMPATH\Database\SQLite3\Connection.php(164): SQLite3->query('SELECT * FROM vue_gains_par_type')
