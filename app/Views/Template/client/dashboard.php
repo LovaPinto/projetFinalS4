@@ -42,21 +42,21 @@
 
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <a class="action" href="#">
+                    <a class="action" href="/depot">
                         <div class="ico green mb-3"><i class="bi bi-wallet2"></i></div>
                         <h3 class="h6 fw-bold">Faire un dépôt</h3>
                         <p class="text-secondary mb-0">Ajouter de l'argent au compte.</p>
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a class="action" href="#">
+                    <a class="action" href="/retrait">
                         <div class="ico orange mb-3"><i class="bi bi-cash-stack"></i></div>
                         <h3 class="h6 fw-bold">Faire un retrait</h3>
                         <p class="text-secondary mb-0">Retirer avec calcul des frais.</p>
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a class="action" href="#">
+                    <a class="action" href="/transfert">
                         <div class="ico purple mb-3"><i class="bi bi-send"></i></div>
                         <h3 class="h6 fw-bold">Faire un transfert</h3>
                         <p class="text-secondary mb-0">Envoyer vers un autre numéro.</p>
