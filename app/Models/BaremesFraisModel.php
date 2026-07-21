@@ -22,6 +22,7 @@ class BaremesFraisModel extends Model
         'actif',
         'date_debut',
         'date_fin',
+        'promoation'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -73,6 +74,7 @@ class BaremesFraisModel extends Model
 
         return $bareme ? (float) $bareme['frais'] : 0;
     }
+
 
     /**
      * Calcul des frais de retrait pour un opérateur donné.
@@ -140,5 +142,23 @@ class BaremesFraisModel extends Model
             ->first();
 
         return $bareme ? (float) $bareme['frais'] : 0;
+    }
+  public function calculerFraisPromotion(string $codeType, float $montant): float
+    {
+        $typeModel = new TypesOperationModel();
+        $type      = $typeModel->where('code', $codeType)->first();
+
+        if (!$type) {
+            return 0;
+        }
+
+        $bareme = $this->where('type_operation_id', $type['id'])
+            ->where('actif', 1)
+            ->where('montant_min <=', $montant)
+            ->where('montant_max >=', $montant)
+            ->where('date_fin IS NULL')
+            ->first();
+
+        return $bareme ? (float) $bareme['promotion'] : 0;
     }
 }

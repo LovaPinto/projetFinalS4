@@ -156,3 +156,5 @@
 - [ ] Notifications push (optionnel)
 - [ ] Page profil client (voir/modifier ses infos)
 - [ ] Thème sombre (optionnel)
+
+promotion frais de transfert meme operateur

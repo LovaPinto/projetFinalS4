@@ -52,6 +52,10 @@ class CreateBaremesFrais extends Migration
                 'type' => 'DATETIME',
                 'null' => true,
             ],
+             'promotion' => [
+                'type' => 'INT',
+                'default' => 1,
+            ],
         ]);
         $this->forge->addPrimaryKey('id');
         $this->forge->addForeignKey('type_operation_id', 'types_operation', 'id', '', 'CASCADE');

@@ -104,12 +104,14 @@ class TransfertController extends BaseController
 
         $baremesModel = new BaremesFraisModel();
         $frais        = $baremesModel->calculerFrais('TRANSFERT', $montantTotal);
+        
 
         $prefixModel   = new PrefixOperateurModel();
         $operateurModel = new OperateurModel();
 
         $prefixeSource = substr($clientSource['numero_telephone'], 0, 3);
         $prefixeDest   = substr($clientDest['numero_telephone'], 0, 3);
+        
 
         $rowSource = $prefixModel->where('prefixe', $prefixeSource)->where('actif', 1)->first();
         $rowDest   = $prefixModel->where('prefixe', $prefixeDest)->where('actif', 1)->first();
@@ -122,14 +124,17 @@ class TransfertController extends BaseController
         if ($memeOperateur) {
             $typeTransfertStr = 'INTERNE';
             $commission    = 0;
+            $promotion       = $baremesModel->calculerFraisPromotion('TRANSFERT', $montantTotal);
+            
         } else {
             $typeTransfertStr = 'EXTERNE';
             $opSource = $operateurModel->find($opSourceId);
             $pct      = (float) ($opSource['commission_pct'] ?? 2.0);
             $commission = round($frais * $pct / 100, 2);
+            $promotion       = 0;
         }
 
-        $total = $montantTotal + $frais + $commission;
+        $total = $montantTotal + $frais + $commission - $promotion;
 
         if ((float) $clientSource['solde'] < $total) {
             return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais + commission).');
