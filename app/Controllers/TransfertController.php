@@ -131,10 +131,10 @@ class TransfertController extends BaseController
             $opSource = $operateurModel->find($opSourceId);
             $pct      = (float) ($opSource['commission_pct'] ?? 2.0);
             $commission = round($frais * $pct / 100, 2);
-            $promotion       = 0;
+            $promotion       = 1;
         }
 
-        $total = $montantTotal + $frais + $commission - $promotion;
+        $total = $montantTotal + $frais + $commission - ($promotion/100 * $frais);
 
         if ((float) $clientSource['solde'] < $total) {
             return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais + commission).');
