@@ -103,7 +103,7 @@ class TransfertController extends BaseController
         $operateurDestId = $operateurIdsDest[0];
 
         $baremesModel = new BaremesFraisModel();
-        $frais        = $baremesModel->calculerFrais('TRANSFERT', $montant);
+        $frais        = $baremesModel->calculerFrais('TRANSFERT', $montantTotal);
 
         $prefixModel   = new PrefixOperateurModel();
         $operateurModel = new OperateurModel();
@@ -120,38 +120,38 @@ class TransfertController extends BaseController
         $memeOperateur = ($opSourceId === $opDestId);
 
         if ($memeOperateur) {
-            $typeTransfert = 'INTERNE';
+            $typeTransfertStr = 'INTERNE';
             $commission    = 0;
         } else {
-            $typeTransfert = 'EXTERNE';
+            $typeTransfertStr = 'EXTERNE';
             $opSource = $operateurModel->find($opSourceId);
             $pct      = (float) ($opSource['commission_pct'] ?? 2.0);
             $commission = round($frais * $pct / 100, 2);
         }
 
-        $total = $montant + $frais + $commission;
+        $total = $montantTotal + $frais + $commission;
 
         if ((float) $clientSource['solde'] < $total) {
             return redirect()->back()->withInput()->with('error', 'Solde insuffisant. Vous avez ' . number_format($clientSource['solde'], 0, ',', ' ') . ' Ar mais le total débité est ' . number_format($total, 0, ',', ' ') . ' Ar (montant + frais + commission).');
         }
 
-        $typeModel = new TypesOperationModel();
-        $typeTransfert = $typeModel->where('code', 'TRANSFERT')->first();
+        $typeModel    = new TypesOperationModel();
+        $typeOpTransfert = $typeModel->where('code', 'TRANSFERT')->first();
 
         $soldeAvantSource = (float) $clientSource['solde'];
         $soldeApresSource = $soldeAvantSource - $total;
 
-        $referenceBase = 'TRA-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2)));
+        $reference = 'TRA-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2)));
         $transactionModel = new TransactionModel();
         $txId = $transactionModel->insert([
             'reference'             => $reference,
-            'type_operation_id'     => $type['id'],
+            'type_operation_id'     => $typeOpTransfert['id'],
             'client_source_id'      => $clientSource['id'],
             'client_destination_id' => $clientDest['id'],
-            'montant'               => $montant,
+            'montant'               => $montantTotal,
             'frais'                 => $frais,
             'commission'            => $commission,
-            'type_transfert'        => $typeTransfert,
+            'type_transfert'        => $typeTransfertStr,
             'montant_total'         => $total,
             'solde_avant'           => $soldeAvantSource,
             'solde_apres'           => $soldeApresSource,
@@ -165,7 +165,7 @@ class TransfertController extends BaseController
                 'transaction_id'       => $txId,
                 'operateur_source_id'  => $opSourceId,
                 'operateur_dest_id'    => $opDestId,
-                'montant'              => $montant,
+                'montant'              => $montantTotal,
                 'statut'               => 'EN_ATTENTE',
                 'date_creation'        => date('Y-m-d H:i:s'),
             ]);
@@ -174,8 +174,8 @@ class TransfertController extends BaseController
         $clientModel->update($clientSource['id'], ['solde' => $soldeApresSource]);
         $session->set('solde', $soldeApresSource);
 
-        $msg = "Transfert de " . number_format($montant, 0, ',', ' ') . " Ar vers " . $numeroDest . " effectué";
-        $msg .= " (type : " . $typeTransfert . ", frais : " . number_format($frais, 0, ',', ' ') . " Ar";
+        $msg = "Transfert de " . number_format($montantTotal, 0, ',', ' ') . " Ar vers " . esc($clientDest['numero_telephone']) . " effectué";
+        $msg .= " (type : " . $typeTransfertStr . ", frais : " . number_format($frais, 0, ',', ' ') . " Ar";
         if ($commission > 0) {
             $msg .= ", commission : " . number_format($commission, 0, ',', ' ') . " Ar";
         }
