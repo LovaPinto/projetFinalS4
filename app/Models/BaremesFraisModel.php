@@ -22,7 +22,7 @@ class BaremesFraisModel extends Model
         'actif',
         'date_debut',
         'date_fin',
-        'promoation'
+        'promotion'
     ];
 
     protected bool $allowEmptyInserts = false;
