@@ -50,4 +50,16 @@ class ClientsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    protected $allowedFields = [
+        'numero_telephone',
+        'operateur_id',
+        'nom',
+        'prenom',
+        'solde',
+        'solde_epargne',
+        'statut',
+        'date_creation',
+        'date_derniere_connexion',
+    ];
 }

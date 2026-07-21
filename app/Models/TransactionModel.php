@@ -17,6 +17,8 @@ class TransactionModel extends Model
         'client_source_id',
         'client_destination_id',
         'montant',
+        'montant_principal',
+        'montant_epargne',
         'frais',
         'montant_total',
         'commission',

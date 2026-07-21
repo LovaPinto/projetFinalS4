@@ -117,6 +117,10 @@
                             <span>Votre numéro</span>
                             <b><?= esc($client['numero_telephone']) ?></b>
                         </div>
+                        <div>
+                         <span>Compte Epargne</span>
+                         <b><?= esc($client['Compte_epargne']) ?></b>
+                        </div>
                     </div>
                 </div>
             </div>

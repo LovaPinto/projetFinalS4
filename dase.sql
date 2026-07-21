@@ -56,6 +56,7 @@ CREATE TABLE clients (
     solde                    NUMERIC NOT NULL DEFAULT 0 CHECK (solde >= 0),
     statut                   TEXT NOT NULL DEFAULT 'ACTIF',  -- ACTIF, BLOQUE, SUSPENDU
     date_creation            TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- = 1re connexion (auto-login)
+    Compte_epargne           NUMBER 
     date_derniere_connexion  TEXT
 );
 

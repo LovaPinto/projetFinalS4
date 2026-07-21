@@ -465,8 +465,8 @@ git push origin v2.0.0
 - [ ] Dépôt fonctionnel
 - [ ] Retrait fonctionnel
 - [ ] Transfert interne fonctionnel
-- [ ] Transfert externe fonctionnel
-- [ ] Commission correcte : 2 % des frais
+- [ ] Transfert externe fonctionnel0
+-00................................................................ [ ] Commission correcte : 2 % des frais
 - [ ] Transfert multiple fonctionnel
 - [ ] Option frais de retrait incluse fonctionnelle
 - [ ] Historique filtrable et paginé
@@ -477,3 +477,12 @@ git push origin v2.0.0
 - [ ] Aucun bouton principal sans action
 - [ ] Aucune erreur 404 ou 500
 - [ ] Tests validés après fusion avec l'espace opérateur
+
+
+Alea 2 : 
+notion epargne : ilay client manana interface en % ilzy epargne (afaka misafidy %)
+makany solde principal 
+50 % makany am epargne 
+samy manana izay tiny 
+misafidy par client 
+amny transfert iany 
